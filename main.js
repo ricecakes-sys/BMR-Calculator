@@ -1,59 +1,36 @@
-const age = document.querySelector(".bmr-calculator .controls form .age-section #age");
-const height = document.querySelector(".bmr-calculator .controls form .height-section #height");
-const weight = document.querySelector(".bmr-calculator .controls form .weight-section #weight");
+const age = document.querySelector("#age");
+const height = document.querySelector("#height");
+const weight = document.querySelector("#weight");
 const activity = document.querySelector("#activity");
-const calculateBtn = document.querySelector(".bmr-calculator .result .calculate-btn");
-const calories = document.querySelector(".bmr-calculator .result .result-msg .calories");
-const tdeeCalories = document.querySelector(".bmr-calculator .result .result-msg .tdee-calories");
-const errorMessage = document.querySelector(".bmr-calculator .result .error-msg");
+const calculateBtn = document.querySelector(".calculate-btn");
+const calories = document.querySelector(".calories");
+const tdeeCalories = document.querySelector(".tdee-calories");
+const errorMessage = document.querySelector(".error-msg");
 
-// Mifflin-St Jeor equation to calculate BMR (Basal Metabolic Rate)
-const calculateBMR = (weight, height, age, gender) => {
+const calculateBMR = (w, h, a, gender) => {
   if (gender === "male") {
-    return 10 * weight + 6.25 * height - 5 * age + 5;
+    return 10 * w + 6.25 * h - 5 * a + 5;
   }
-  return 10 * weight + 6.25 * height - 5 * age - 161;
+  return 10 * w + 6.25 * h - 5 * a - 161;
 };
 
 calculateBtn.addEventListener("click", () => {
-  // Validate inputs
-  if (
-    !age.value || age.classList.contains("invalid") ||
-    !height.value || height.classList.contains("invalid") ||
-    !weight.value || weight.classList.contains("invalid")
-  ) {
-    errorMessage.classList.add("active");
+  const aVal = parseFloat(age.value);
+  const hVal = parseFloat(height.value);
+  const wVal = parseFloat(weight.value);
+
+  if (!aVal || aVal <= 0 || !hVal || hVal <= 0 || !wVal || wVal <= 0) {
+    if (errorMessage) errorMessage.classList.add("active");
     return;
   }
 
-  errorMessage.classList.remove("active");
+  if (errorMessage) errorMessage.classList.remove("active");
 
-  const genderValue = document.querySelector(".bmr-calculator form input[name='gender']:checked").value;
-  const bmr = calculateBMR(parseFloat(weight.value), parseFloat(height.value), parseFloat(age.value), genderValue);
-  
-  // Calculate total daily calories using selected activity multiplier
+  const genderValue = document.querySelector("input[name='gender']:checked").value;
+  const bmr = calculateBMR(wVal, hVal, aVal, genderValue);
   const activityMultiplier = parseFloat(activity.value) || 1.2;
   const tdee = Math.round(bmr * activityMultiplier);
 
-  // Display rounded values
-  calories.innerHTML = Math.round(bmr).toLocaleString("en-US");
-  if (tdeeCalories) {
-    tdeeCalories.innerHTML = tdee.toLocaleString("en-US");
-  }
+  if (calories) calories.textContent = Math.round(bmr).toLocaleString("en-US");
+  if (tdeeCalories) tdeeCalories.textContent = tdee.toLocaleString("en-US");
 });
-
-// Input Validation
-const validateInput = (input) => {
-  input.addEventListener("input", (e) => {
-    let val = e.target.value;
-    if (!val || isNaN(val) || val <= 0) {
-      input.classList.add("invalid");
-    } else {
-      input.classList.remove("invalid");
-    }
-  });
-};
-
-validateInput(age);
-validateInput(height);
-validateInput(weight);
